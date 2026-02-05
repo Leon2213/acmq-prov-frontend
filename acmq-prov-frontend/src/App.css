@@ -1,0 +1,10 @@
+/* Global app styles - most styles are now in Layout.css */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
