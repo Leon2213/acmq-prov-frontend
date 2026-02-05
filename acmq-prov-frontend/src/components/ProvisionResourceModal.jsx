@@ -379,6 +379,25 @@ const ProvisionResourceModal = ({
             let payload;
 
             if (resourceType === 'topic') {
+                // Filtrera bort 'admin' från producers (hanteras av backend)
+                const filteredProducers = formData.producers
+                    .map(p => p.name)
+                    .filter(name => name.toLowerCase() !== 'admin');
+
+                // Hitta NY subscription (för updates) eller använd första (för new)
+                const newSubscription = formData.subscriptions.find(s => s.isNew);
+                const subscriptionNameToSend = mode === 'update' && newSubscription
+                    ? newSubscription.name
+                    : (formData.subscriptions.length > 0 ? formData.subscriptions[0].name : '');
+
+                // Hitta subscriber för den subscription vi skickar
+                const newSubscriber = newSubscription ? newSubscription.subscriber : null;
+
+                // För updates: skicka bara nya subscribers, för new: skicka alla
+                const consumersToSend = mode === 'update'
+                    ? formData.subscriptions.filter(s => s.isNew).map(s => s.subscriber)
+                    : formData.subscriptions.map(s => s.subscriber);
+
                 payload = {
                     requestType: mode,
                     resourceType: resourceType,
@@ -387,12 +406,13 @@ const ProvisionResourceModal = ({
                     team: formData.team,
                     requester: formData.requester,
                     ticketNumber: formData.ticketNumber,
-                    // Backend expects: producers = [publishers], consumers = [subscribers]
-                    producers: formData.producers.map(p => p.name),
-                    consumers: formData.subscriptions.map(s => s.subscriber),
-                    // Backend expects subscriptionName as single string (first subscription)
-                    subscriptionName: formData.subscriptions.length > 0 ? formData.subscriptions[0].name : ''
+                    producers: filteredProducers,
+                    consumers: consumersToSend,
+                    subscriptionName: subscriptionNameToSend
                 };
+
+                console.log("Topic payload:", payload);
+                console.log("New subscription:", newSubscription);
             } else {
                 payload = {
                     requestType: mode,
