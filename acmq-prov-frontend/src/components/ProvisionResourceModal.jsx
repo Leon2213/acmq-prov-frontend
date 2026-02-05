@@ -256,7 +256,7 @@ const ProvisionResourceModal = ({
             subscriptions: [...prev.subscriptions, {
                 name: newSubscription.name,
                 subscriber: newSubscription.subscriber,
-                isNew: newSubscription.subscriberType === 'new'
+                isNew: true  // Ny subscription som läggs till i modalen
             }]
         }));
         setNewSubscription({ name: '', subscriberType: 'existing', subscriber: '', nameManuallyEdited: false });
