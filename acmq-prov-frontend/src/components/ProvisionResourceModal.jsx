@@ -384,19 +384,12 @@ const ProvisionResourceModal = ({
                     .map(p => p.name)
                     .filter(name => name.toLowerCase() !== 'admin');
 
-                // Hitta NY subscription (för updates) eller använd första (för new)
-                const newSubscription = formData.subscriptions.find(s => s.isNew);
-                const subscriptionNameToSend = mode === 'update' && newSubscription
-                    ? newSubscription.name
-                    : (formData.subscriptions.length > 0 ? formData.subscriptions[0].name : '');
-
-                // Hitta subscriber för den subscription vi skickar
-                const newSubscriber = newSubscription ? newSubscription.subscriber : null;
-
-                // För updates: skicka bara nya subscribers, för new: skicka alla
-                const consumersToSend = mode === 'update'
-                    ? formData.subscriptions.filter(s => s.isNew).map(s => s.subscriber)
-                    : formData.subscriptions.map(s => s.subscriber);
+                // Skapa subscriptions-array med subscriptionName, subscriber och isNew
+                const subscriptionsToSend = formData.subscriptions.map(s => ({
+                    subscriptionName: s.name,
+                    subscriber: s.subscriber,
+                    isNew: s.isNew || false
+                }));
 
                 payload = {
                     requestType: mode,
@@ -407,12 +400,10 @@ const ProvisionResourceModal = ({
                     requester: formData.requester,
                     ticketNumber: formData.ticketNumber,
                     producers: filteredProducers,
-                    consumers: consumersToSend,
-                    subscriptionName: subscriptionNameToSend
+                    subscriptions: subscriptionsToSend
                 };
 
                 console.log("Topic payload:", payload);
-                console.log("New subscription:", newSubscription);
             } else {
                 payload = {
                     requestType: mode,
