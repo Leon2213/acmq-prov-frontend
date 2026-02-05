@@ -555,11 +555,14 @@ const ProvisionResourceModal = ({
                 {formData.subscriptions.length > 0 && (
                     <div className="subscriptions-list">
                         {formData.subscriptions.map((sub) => (
-                            <div key={sub.name} className="subscription-item">
+                            <div key={sub.name} className={`subscription-item ${sub.isNew ? 'subscription-new' : ''}`}>
                                 <div className="subscription-info">
                                     <span className="badge badge-subscriber">SUB</span>
                                     <div className="subscription-details">
-                                        <span className="subscription-name">{sub.name}</span>
+                                        <span className="subscription-name">
+                                            {sub.name}
+                                            {sub.isNew && <span className="new-indicator"> (ny)</span>}
+                                        </span>
                                         <span className="subscription-subscriber">
                       Subscriber: <strong>{sub.subscriber}</strong>
                                             {sub.subscriberIsNew && <span className="new-indicator">(ny användare)</span>}

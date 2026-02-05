@@ -429,6 +429,11 @@
     border-bottom: none;
 }
 
+.subscription-item.subscription-new {
+    background: linear-gradient(90deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left: 3px solid #22c55e;
+}
+
 .subscription-info {
     display: flex;
     align-items: center;
