@@ -11,7 +11,7 @@ const ProvisionResourceModal = ({
                                 }) => {
     console.log("inital state");
     console.log("ProvResourceMOdule laddad ")
-    console.log(JSON.stringify(existingResource.producers))
+    console.log(JSON.stringify(existingResource?.producers))
     const [availableUsers, setAvailableUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(true);
 
