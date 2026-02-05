@@ -256,7 +256,8 @@ const ProvisionResourceModal = ({
             subscriptions: [...prev.subscriptions, {
                 name: newSubscription.name,
                 subscriber: newSubscription.subscriber,
-                isNew: true  // Ny subscription som läggs till i modalen
+                isNew: true,  // Ny subscription som läggs till i modalen
+                subscriberIsNew: newSubscription.subscriberType === 'new'  // Om subscribern är en ny användare
             }]
         }));
         setNewSubscription({ name: '', subscriberType: 'existing', subscriber: '', nameManuallyEdited: false });
@@ -561,7 +562,7 @@ const ProvisionResourceModal = ({
                                         <span className="subscription-name">{sub.name}</span>
                                         <span className="subscription-subscriber">
                       Subscriber: <strong>{sub.subscriber}</strong>
-                                            {sub.isNew && <span className="new-indicator">(ny användare)</span>}
+                                            {sub.subscriberIsNew && <span className="new-indicator">(ny användare)</span>}
                     </span>
                                     </div>
                                 </div>
