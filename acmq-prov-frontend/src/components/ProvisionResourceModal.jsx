@@ -36,7 +36,7 @@ const ProvisionResourceModal = ({
         subscriber: '',
         nameManuallyEdited: false
     });
-    const [publisherType, setPublisherType] = useState('existing');
+    const [newTopicPublisher, setNewTopicPublisher] = useState({ type: 'existing', value: '' });
     const [topicNameWarning, setTopicNameWarning] = useState('');
 
     const [errors, setErrors] = useState({});
@@ -66,19 +66,16 @@ const ProvisionResourceModal = ({
                             }))
                     )
                     : [];
-                const publisherData = existingResource.publisher || '';
                 const producersData = (existingResource.producers || []).map(u => ({ name: u, isNew: false }));
 
                 setFormData(prev => ({
                     ...prev,
-                    publisher: publisherData,
                     subscriptions: subscriptionsData,
                     producers: producersData
                 }));
 
                 // Store initial values for change detection
                 setInitialValues({
-                    publisher: publisherData,
                     subscriptions: subscriptionsData,
                     producers: producersData
                 });
@@ -219,6 +216,24 @@ const ProvisionResourceModal = ({
         }));
     };
 
+    // Topic: Publisher management
+    const addTopicPublisher = () => {
+        if (!newTopicPublisher.value.trim()) return;
+
+        const exists = formData.producers.some(p => p.name === newTopicPublisher.value);
+        if (exists) {
+            setErrors(prev => ({ ...prev, publisher: 'Denna användare finns redan som publisher' }));
+            return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            producers: [...prev.producers, { name: newTopicPublisher.value, isNew: newTopicPublisher.type === 'new' }]
+        }));
+        setNewTopicPublisher({ type: 'existing', value: '' });
+        setErrors(prev => ({ ...prev, publisher: null }));
+    };
+
     // Topic: Subscription management
     const addSubscription = () => {
         if (!newSubscription.name.trim()) {
@@ -336,8 +351,8 @@ const ProvisionResourceModal = ({
         }
 
         if (resourceType === 'topic') {
-            if (!formData.publisher.trim()) {
-                newErrors.publisher = 'Publisher är obligatoriskt';
+            if (formData.producers.length === 0) {
+                newErrors.publisher = 'Minst en publisher måste anges';
             }
             if (formData.subscriptions.length === 0) {
                 newErrors.general = 'Minst en subscription måste anges';
@@ -372,8 +387,8 @@ const ProvisionResourceModal = ({
                     team: formData.team,
                     requester: formData.requester,
                     ticketNumber: formData.ticketNumber,
-                    // Backend expects: producers = [publisher], consumers = [subscribers]
-                    producers: [formData.publisher],
+                    // Backend expects: producers = [publishers], consumers = [subscribers]
+                    producers: formData.producers.map(p => p.name),
                     consumers: formData.subscriptions.map(s => s.subscriber),
                     // Backend expects subscriptionName as single string (first subscription)
                     subscriptionName: formData.subscriptions.length > 0 ? formData.subscriptions[0].name : ''
@@ -426,87 +441,92 @@ const ProvisionResourceModal = ({
     // Render Topic form
     const renderTopicForm = () => (
         <>
-            {/* Topic Name and Publisher side by side - aligned at bottom */}
-            <div className="form-row-align-bottom">
-                <div className="form-group">
-                    <label className="form-label">Topic-namn *</label>
-                    <div className="field-spacer"></div>
-                    <input
-                        type="text"
-                        name="name"
-                        className={`form-control ${errors.name ? 'error' : ''}`}
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="t.ex. accounting.topic.report.results"
-                        disabled={mode === 'update'}
-                    />
-                    {errors.name && <span className="error-text">{errors.name}</span>}
-                    {topicNameWarning && <span className="warning-text">{topicNameWarning}</span>}
+            {/* Topic Name */}
+            <div className="form-group">
+                <label className="form-label">Topic-namn *</label>
+                <input
+                    type="text"
+                    name="name"
+                    className={`form-control ${errors.name ? 'error' : ''}`}
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="t.ex. accounting.topic.report.results"
+                    disabled={mode === 'update'}
+                />
+                {errors.name && <span className="error-text">{errors.name}</span>}
+                {topicNameWarning && <span className="warning-text">{topicNameWarning}</span>}
+            </div>
+
+            <hr className="form-divider" />
+
+            {/* Publishers Section */}
+            <div className="user-assignment-section">
+                <h4>Publishers</h4>
+                <p className="section-description">
+                    Tjänster/användare som ska kunna publicera meddelanden till denna topic
+                </p>
+
+                <div className="selected-users">
+                    {formData.producers.map((publisher) => (
+                        <div key={publisher.name} className="selected-user-tag">
+                            <span className="badge badge-producer">P</span>
+                            <span>{publisher.name}</span>
+                            {publisher.isNew && <span className="new-indicator">(ny)</span>}
+                            <button type="button" onClick={() => removeProducer(publisher.name)}>&times;</button>
+                        </div>
+                    ))}
                 </div>
-                {/* lägg till ta bort publisher för Subscription*/}
-                <div className="form-group input-with-toggle">
-                    <label className="form-label">Publisher *</label>
-                    <div className="selected-users">
-                        {formData.producers.map((pub) => (
-                            <div key={pub.name} className="selected-user-tag">
-                                <span className="badge badge-producer">P</span>
-                                <span>{pub.name}</span>
-                                {pub.isNew && <span className="new-indicator">(ny)</span>}
-                                <button
-                                    type="button"
-                                    onClick={() => removeProducer(pub.name)}>&times;</button>
-                            </div>
-                        ))}
-                    </div>
+
+                <div className="add-user-row">
                     <div className="user-type-toggle">
                         <label className="user-type-option">
                             <input
                                 type="radio"
-                                checked={publisherType === 'existing'}
-                                onChange={() => {
-                                    setPublisherType('existing');
-                                    setFormData(prev => ({ ...prev, publisher: '' }));
-                                }}
+                                checked={newTopicPublisher.type === 'existing'}
+                                onChange={() => setNewTopicPublisher(prev => ({ ...prev, type: 'existing', value: '' }))}
                             />
-                            Befintlig
+                            Befintlig användare
                         </label>
                         <label className="user-type-option">
                             <input
                                 type="radio"
-                                checked={publisherType === 'new'}
-                                onChange={() => {
-                                    setPublisherType('new');
-                                    setFormData(prev => ({ ...prev, publisher: '' }));
-                                }}
+                                checked={newTopicPublisher.type === 'new'}
+                                onChange={() => setNewTopicPublisher(prev => ({ ...prev, type: 'new', value: '' }))}
                             />
                             Ny användare
                         </label>
                     </div>
-                    {publisherType === 'existing' ? (
-                        <select
-                            name="publisher"
-                            className={`form-control form-select ${errors.publisher ? 'error' : ''}`}
-                            value={formData.publisher}
-                            onChange={handleChange}
-                            disabled={loadingUsers}
-                        >
-                            <option value="">{loadingUsers ? 'Laddar...' : '-- Välj publisher --'}</option>
-                            {availableUsers.map((user) => (
-                                <option key={user.id} value={user.name}>
-                                    {user.name}
-                                </option>
-                            ))}
-                        </select>
-                    ) : (
-                        <input
-                            type="text"
-                            name="publisher"
-                            className={`form-control ${errors.publisher ? 'error' : ''}`}
-                            value={formData.publisher}
-                            onChange={handleChange}
-                            placeholder="Nytt användarnamn för publisher"
-                        />
-                    )}
+
+                    <div className="add-user-input">
+                        {newTopicPublisher.type === 'existing' ? (
+                            <select
+                                className="form-control form-select"
+                                value={newTopicPublisher.value}
+                                onChange={(e) => setNewTopicPublisher(prev => ({ ...prev, value: e.target.value }))}
+                                disabled={loadingUsers}
+                            >
+                                <option value="">{loadingUsers ? 'Laddar...' : '-- Välj publisher --'}</option>
+                                {availableUsers
+                                    .filter(u => !formData.producers.some(p => p.name === u.name))
+                                    .map((user) => (
+                                        <option key={user.id} value={user.name}>
+                                            {user.name}
+                                        </option>
+                                    ))}
+                            </select>
+                        ) : (
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={newTopicPublisher.value}
+                                onChange={(e) => setNewTopicPublisher(prev => ({ ...prev, value: e.target.value }))}
+                                placeholder="Nytt användarnamn"
+                            />
+                        )}
+                        <button type="button" className="btn btn-sm btn-success" onClick={addTopicPublisher}>
+                            Lägg till
+                        </button>
+                    </div>
                     {errors.publisher && <span className="error-text">{errors.publisher}</span>}
                 </div>
             </div>
