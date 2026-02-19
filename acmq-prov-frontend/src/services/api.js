@@ -20,8 +20,8 @@ const mockUsers = [
       consumer: [
         { type: 'queue', name: 'payment.completed.queue', environment: 'prod' }
       ],
-      subscriber: [
-        { type: 'topic', name: 'inventory.updates', environment: 'prod' }
+      subscription: [
+        { type: 'topic', name: 'inventory.updates', subscription: 'order-service.inventory.updates-sub', environment: 'prod' }
       ]
     }
   },
@@ -39,7 +39,7 @@ const mockUsers = [
       consumer: [
         { type: 'queue', name: 'order.created.queue', environment: 'prod' }
       ],
-      subscriber: []
+      subscription: []
     }
   },
   {
@@ -53,8 +53,8 @@ const mockUsers = [
         { type: 'topic', name: 'inventory.updates', environment: 'prod' }
       ],
       consumer: [],
-      subscriber: [
-        { type: 'topic', name: 'order.events', environment: 'prod' }
+      subscription: [
+        { type: 'topic', name: 'order.events', subscription: 'inventory-service.order.events-sub', environment: 'prod' }
       ]
     }
   },
@@ -67,9 +67,9 @@ const mockUsers = [
     roles: {
       producer: [],
       consumer: [],
-      subscriber: [
-        { type: 'topic', name: 'order.events', environment: 'prod' },
-        { type: 'topic', name: 'payment.events', environment: 'prod' }
+      subscription: [
+        { type: 'topic', name: 'order.events', subscription: 'notification-service.order.events-sub', environment: 'prod' },
+        { type: 'topic', name: 'payment.events', subscription: 'notification-service.payment.events-sub', environment: 'prod' }
       ]
     }
   },
@@ -84,10 +84,10 @@ const mockUsers = [
       consumer: [
         { type: 'queue', name: 'analytics.events.queue', environment: 'prod' }
       ],
-      subscriber: [
-        { type: 'topic', name: 'order.events', environment: 'prod' },
-        { type: 'topic', name: 'payment.events', environment: 'prod' },
-        { type: 'topic', name: 'inventory.updates', environment: 'prod' }
+      subscription: [
+        { type: 'topic', name: 'order.events', subscription: 'analytics-service.order.events-sub', environment: 'prod' },
+        { type: 'topic', name: 'payment.events', subscription: 'analytics-service.payment.events-sub', environment: 'prod' },
+        { type: 'topic', name: 'inventory.updates', subscription: 'analytics-service.inventory.updates-sub', environment: 'prod' }
       ]
     }
   }

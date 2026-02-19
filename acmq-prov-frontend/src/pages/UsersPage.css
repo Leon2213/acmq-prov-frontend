@@ -108,6 +108,48 @@
     font-size: 0.9rem;
 }
 
+.subscription-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: #f7fafc;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.subscription-item-topic {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+}
+
+.subscription-item-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-left: 0.25rem;
+    font-size: 0.82rem;
+    color: #4a5568;
+}
+
+.subscriber-arrow {
+    color: #a0aec0;
+    font-weight: bold;
+}
+
+.subscriber-label {
+    color: #718096;
+}
+
+.subscription-name-text {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.82rem;
+    color: #553c9a;
+    word-break: break-all;
+}
+
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;

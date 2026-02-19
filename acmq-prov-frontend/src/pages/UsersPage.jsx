@@ -86,6 +86,39 @@ const UsersPage = () => {
     );
   };
 
+  const renderSubscriptionSection = (title, items) => {
+    if (!items || items.length === 0) {
+      return (
+        <div className="role-section">
+          <h4>{title}</h4>
+          <p className="no-items">Inga subscriptions</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="role-section">
+        <h4>{title}</h4>
+        <div className="role-items">
+          {items.map((item, index) => (
+            <div key={index} className="subscription-item">
+              <div className="subscription-item-topic">
+                <span className="badge badge-topic">topic</span>
+                <span className="role-item-name">{item.name}</span>
+                <span className="badge badge-env">{item.environment}</span>
+              </div>
+              <div className="subscription-item-sub">
+                <span className="subscriber-arrow">→</span>
+                <span className="subscriber-label">Subscription:</span>
+                <span className="subscription-name-text">{item.subscription}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="page-container">
@@ -168,11 +201,9 @@ const UsersPage = () => {
             </div>
 
             <div className="card">
-              {renderRoleSection(
+              {renderSubscriptionSection(
                 'Subscriber på',
-                selectedUser.roles?.subscriber,
-                'badge-subscriber',
-                'subscriber'
+                selectedUser.roles?.subscription
               )}
             </div>
           </div>
